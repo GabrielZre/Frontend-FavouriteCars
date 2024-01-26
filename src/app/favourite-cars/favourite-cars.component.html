@@ -1,0 +1,172 @@
+<div class="container d-flex justify-content-center">
+  <nav class="navbar navbar-expand-lg navbar-light position-relative navbar-with-diagonal">
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarColor02" aria-controls="navbarColor02" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarColor02">
+      <ul class="navbar-nav mr-auto">
+        <li class="nav-item active">
+          <a class="nav-link btn btn-primary text-white mr-3" (click)="onOpenModal(defaultCar, 'add')"  *ngIf="userService.roleMatch(['Admin'])"  >Add Car <span class="sr-only">(current)</span></a>
+        </li>
+      </ul>
+      <form class="form-inline my-2 my-lg-0">
+        <input type="search" (ngModelChange)="searchCars(key.value)" #key="ngModel" ngModel
+               name="key" id="searchMark" class="form-control btn btn-primary text-white mr-sm-2" placeholder="Search cars..." required>
+      </form>
+    </div>
+  </nav>
+</div>
+
+
+
+<div class="container" id="main-container">
+  <div class="row">
+    <div *ngFor="let car of cars" class="col-md-6 col-xl-3">
+      <div class="card m-b-30">
+        <div class="card-body row">
+          <div class="col-6">
+            <a href=""><img src="{{car?.imageUrl}}" alt="" class="img-fluid rounded-circle w-150"></a>
+          </div>
+          <div class="col-6 card-title align-self-center mb-0">
+            <h5>{{car?.mark}}</h5>
+            <p class="m-0">{{car?.model}}</p>
+          </div>
+        </div>
+        <ul class="list-group list-group-flush">
+          <li class="list-group-item"><i class="fa-solid fa-fan float-right"></i>{{car?.engine}}</li>
+          <li class="list-group-item"><i class="fa-solid fa-horse float-right"></i>{{car?.horsePower}}</li>
+          <li class="list-group-item"><i class="fa-solid fa-gas-pump float-right"></i>Fuel : {{car?.fuel}}</li>
+        </ul>
+        <div class="card-body">
+          <div class="float-right btn-group btn-group-sm">
+            <a (click)="onOpenModal(car, 'edit')" class="btn btn-primary tooltips" data-placement="top" data-original-title="Edit" *ngIf="userService.roleMatch(['Admin'])" ><i class="fa fa-pencil"></i> </a>
+            <a (click)="onOpenModal(car, 'delete')" class="btn btn-secondary tooltips" data-placement="top" data-original-title="Delete"  *ngIf="userService.roleMatch(['Admin'])" ><i class="fa fa-times"></i></a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add Car Modal -->
+  <div class="modal fade" id="addCarModal" tabindex="-1" role="dialog" aria-labelledby="addCarModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="addCarModalLabel">Add Car</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <form #addForm="ngForm" (ngSubmit)="onAddCar(addForm)">
+            <div class="form-group">
+              <label for="mark">Mark</label>
+              <input type="text" ngModel name="mark" class="form-control" id="mark" placeholder="Mark" required>
+            </div>
+            <div class="form-group">
+              <label for="model">Model</label>
+              <input type="email" ngModel name="model" class="form-control" id="model" placeholder="Model" required>
+            </div>
+            <div class="form-group">
+              <label for="engine">Engine</label>
+              <input type="text" ngModel name="engine" class="form-control" id="engine" placeholder="Engine" required>
+            </div>
+            <div class="form-group">
+              <label for="engine">Horse Power</label>
+              <input type="text" ngModel name="horsePower" class="form-control" id="horsePower" placeholder="Horse Powe" required>
+            </div>
+            <div class="form-group">
+              <label for="fuel">Fuel</label>
+              <input type="text" ngModel name="fuel" class="form-control" id="fuel" placeholder="Fuel" required>
+            </div>
+            <div class="form-group">
+              <label for="imageUrl">Image URL</label>
+              <input type="text" ngModel name="imageUrl" class="form-control" id="imageUrl" placeholder="Image URL" required>
+            </div>
+            <div class="modal-footer">
+              <button type="button" id="add-car-form" class="btn btn-secondary" data-dismiss="modal">Close</button>
+              <button [disabled]="addForm.invalid" type="submit" class="btn btn-primary" >Save changes</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit Modal -->
+  <div class="modal fade" id="updateCarModal" tabindex="-1" role="dialog" aria-labelledby="carEditModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="updateCarModalLabel">Edit Car {{editCar?.mark}}</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <form #editForm="ngForm">
+            <div class="form-group">
+              <label for="mark">Mark</label>
+              <input type="text" ngModel="{{editCar?.mark}}" name="mark" class="form-control" id="mark" placeholder="Mark">
+            </div>
+            <input type="hidden" ngModel="{{editCar?.id}}" name="id" class="form-control" id="id" placeholder="Id">
+            <input type="hidden" ngModel="{{editCar?.carCode}}" name="carCode" class="form-control" id="carCode" placeholder="Car Code">
+            <div class="form-group">
+              <label for="model">Model</label>
+              <input type="text" ngModel="{{editCar?.model}}" name="model" class="form-control" id="Model" placeholder="Model">
+            </div>
+            <div class="form-group">
+              <label for="fuel">Fuel</label>
+              <input type="text" ngModel="{{editCar?.fuel}}" name="fuel" class="form-control" id="fuel" placeholder="Fuel">
+            </div>
+            <div class="form-group">
+              <label for="engine">Engine</label>
+              <input type="text" ngModel="{{editCar?.engine}}" name="engine" class="form-control" id="engine" placeholder="Engine">
+            </div>
+            <div class="form-group">
+              <label for="horsePower">Horse Power</label>
+              <input type="text" ngModel="{{editCar?.horsePower}}" name="horsePower" class="form-control" id="horsePower" name="horsePower" placeholder="Horse Power">
+            </div>
+            <div class="form-group">
+              <label for="imageUrl">Image URL</label>
+              <input type="text" ngModel="{{editCar?.imageUrl}}" name="imageUrl" class="form-control" id="imageUrl" placeholder="Image URL">
+            </div>
+            <div class="modal-footer">
+              <button type="button" id="" data-dismiss="modal" class="btn btn-secondary">Close</button>
+              <button (click)="onUpdateCar(editForm.value)" data-dismiss="modal" class="btn btn-primary" >Save changes</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Delete Modal -->
+  <div class="modal fade" id="deleteCarModal" tabindex="-1" role="dialog" aria-labelledby="deleteModelLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="deleteModelLabel">Delete Car</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <p>Are you sure you want to delete car {{deleteCar?.mark}}?</p>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">No</button>
+            <button (click)="onDeleteCar(deleteCar?.id!)" class="btn btn-danger" data-dismiss="modal">Yes</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Notification for no cars -->
+<div *ngIf="cars?.length == 0" class="col-lg-12 col-md-12 col-xl-12">
+  <div class="alert alert-info" role="alert">
+    <h4 class="alert-heading">NO CARS!</h4>
+    <p>No Cars were found.</p>
+  </div>
+</div>
